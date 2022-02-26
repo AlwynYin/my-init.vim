@@ -20,20 +20,20 @@
                                         
 
 
-" basic settings
+" BASIC SETTINGS
 " ===============================================
 syntax on
 set number
 set relativenumber                  " relative number
 set tabstop=4
 set shiftwidth=4
-set expandtab                       " use space as tabs"
+set expandtab                       " use space as tabs
 set ignorecase                      " ignore case search
 let g:mapleader=" "                 " change the leader key
 set mouse=a                         " mouse on
 set pumheight=10                    " popup menu height
 set noshowmode                      " don't show mode
-set signcolumn=yes                  "always show sign column
+set signcolumn=yes                  " always show sign column
 set smartcase                       " smart case search
 set smartindent                     " smart indent
 set splitbelow                      " force split below
@@ -48,6 +48,8 @@ set scrolloff=4                     " cursor stops at 4 lines when scrolling
 set guifont="JetBrainsMono Nerd Font Mono:h20"
 set whichwrap+=<,>,[,],h,l
 set iskeyword-=_
+autocmd VimEnter * set formatoptions-=cro " disable auto 
+" autocmd VimEnter * NvimTreeOpen
 " ==============================================
 
 
@@ -65,28 +67,58 @@ inoremap <c-e> <end>
 " quickly resize window
 nnoremap <silent><C-o> :vertical resize -2<CR>
 nnoremap <silent><C-p> :vertical resize +2<CR>
-nnoremap <silent><S-o> :resize -2<CR>
-nnoremap <silent><S-p> :resize +2<CR>
+nnoremap <silent><C-z> :resize -2<CR>
+nnoremap <silent><C-x> :resize +2<CR>
+
+" quick window navigationn
+nnoremap <silent> <C-h> <C-w>h
+nnoremap <silent> <C-l> <C-w>l
+nnoremap <silent> <C-j> <C-w>j
+nnoremap <silent> <C-k> <C-w>k
 
 " disable highlight after search
 nnoremap <silent> <leader>s :noh<CR>
 
+" BUFFERLINE
+" move over buffers
+nnoremap <silent> ]b :bnext<CR>
+nnoremap <silent> [b :bNext<CR>
+" save and force quit
+nnoremap <silent> <leader>S :w<CR>:Bdelete<CR>
+nnoremap <silent> <leader>K :Bdelete!<CR>
+
+" FZF
+nnoremap <silent> <leader>ff :Files<CR>
+nnoremap <silent> <leader>fg :Rg<CR>
+nnoremap <silent> <leader>fb :Buffers<CR>
+
+" TOGGLETERM
+nnoremap <silent> <leader>tlg :lua _LAZYGIT_TOGGLE()<CR>
+nnoremap <silent> <leader>tpy :lua _PYTHON_TOGGLE()<CR>
+nnoremap <silent> <leader>tht :lua _HTOP_TOGGLE()<CR>
+nnoremap <silent> <leader>tnd :lua _NODE_TOGGLE()<CR>
+
+" VISTA.VIM
+nnoremap <silent> <leader>V :Vista!!<CR>
 " ==============================================
 
 
 
 " plugins 
 " ===============================================
-call plug#begin('~/.config/nvim/plugged')
+call plug#begin('~/.local/share/nvim/plugged')
 
 
 
 " WRITING HELPERS
-Plug 'vim-airline/vim-airline'
+Plug 'nvim-lualine/lualine.nvim'
+" Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+" Plug 'itchyny/lightline.vim'                                " status line
 Plug 'jiangmiao/auto-pairs'                                 " auto complete brackets
 Plug 'gcmt/wildfire.vim'                                    " visual highlight code block
 Plug 'tpope/vim-surround'                                   " change surroundings
+Plug 'junegunn/vim-peekaboo'                                " register viewer
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'} " better syntax highlight
 Plug 'nvim-lua/plenary.nvim'
 Plug 'lewis6991/gitsigns.nvim'                              " git highlight
@@ -96,7 +128,6 @@ Plug 'kyazdani42/nvim-tree.lua'                             " file tree
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'akinsho/bufferline.nvim'                              " tabs
 Plug 'moll/vim-bbye'
-Plug 'voldikss/vim-floaterm'                                " terminal
 
 " THEMES
 Plug 'joshdick/onedark.vim'
@@ -104,21 +135,42 @@ Plug 'lunarvim/colorschemes'
 Plug 'EdenEast/nightfox.nvim'
 
 " IDE FEATURES
-
-Plug 'mhinz/vim-startify'                                   " welcome panel
 Plug 'neoclide/coc.nvim', { 'branch': 'master', 'do': 'yarn install --frozen-lockfile' }
+Plug 'liuchengxu/vista.vim'                                 " overlook
+Plug 'junegunn/fzf.vim'                                     " fuzzy file finder
+Plug 'akinsho/toggleterm.nvim'                              " integrated terminal
+Plug 'puremourning/vimspector'                              " debugger
 call plug#end()
+
 " ==============================================
-"
-"
-"
+
+
+
 " Plugin settings
 " ==============================================
-" VIM-AIRLINE
+" LIGHTLINE.VIM
 " enable the extension
 set laststatus=2
 set t_Co=256
-let g:airline_powerline_fonts = 1
+lua << END
+require('lualine').setup{}
+END
+" let g:airline_powerline_fonts = 1
+" let g:airline#extensions#tabline#left_sep = '|'
+" let g:lightline = {
+"     \ 'colorscheme': 'PaperColor',
+"     \ 'active': {
+"     \   'left': [  [ 'mode', 'paste' ] ,
+"     \              [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
+"     \ 
+"     \   'right': [ [ 'lineinfo' ],
+"     \              [ 'percent' ],
+"     \              [ 'fileformat', 'fileencoding', 'filetype'] ]
+"     \ },
+"     \ 'component_funcion': {
+"     \    'gitbranch': 'gitbranch#name'
+"     \ },
+"     \ }
 
 
 " NVIM-TREE
@@ -145,17 +197,46 @@ require("bufferline").setup{
     }
 }
 EOF
-" move along buffers
-nnoremap <silent>[b :BufferLineCycleNext<CR>
-nnoremap <silent>b] :BufferLineCyclePrev<CR>
 
 
 " NVIM-TREESITTER
 lua << EOF
 require("nvim-treesitter.configs").setup {
-  ensure_installed = "maintained",
+  ensure_installed = {
+    "bash",
+    "c",
+    "c_sharp",
+    "cmake",
+    "cpp",
+    "css",
+    "cuda",
+    "dockerfile",
+    "fish",
+    "go",
+    "hjson",
+    "html",
+    "http",
+    "java",
+    "javascript",
+    "json",
+    "json5",
+    "kotlin",
+    "latex",
+    "llvm",
+    "lua",
+    "make",
+    "php",
+    "python",
+    "r",
+    "ruby",
+    "rust",
+    "scss",
+    "typescript",
+    "vim",
+    "vue",
+    "yaml",
+  },
   sync_install = false,
-  ignore_install = { "ocamllex", "teal" }, -- List of parsers to ignore installing
   highlight = {
     enable = true, -- false will disable the whole extension
     disable = { "" }, -- list of language that will be disabled
@@ -171,11 +252,11 @@ EOF
 lua << EOF
 require('gitsigns').setup {
   signs = {
-    add          = {hl = 'GitSignsAdd'   , text = '│', numhl='GitSignsAddNr'   , linehl='GitSignsAddLn'},
-    change       = {hl = 'GitSignsChange', text = '│', numhl='GitSignsChangeNr', linehl='GitSignsChangeLn'},
-    delete       = {hl = 'GitSignsDelete', text = '_', numhl='GitSignsDeleteNr', linehl='GitSignsDeleteLn'},
-    topdelete    = {hl = 'GitSignsDelete', text = '‾', numhl='GitSignsDeleteNr', linehl='GitSignsDeleteLn'},
-    changedelete = {hl = 'GitSignsChange', text = '~', numhl='GitSignsChangeNr', linehl='GitSignsChangeLn'},
+    add = { hl = "GitSignsAdd", text = "▎", numhl = "GitSignsAddNr", linehl = "GitSignsAddLn" },
+    change = { hl = "GitSignsChange", text = "▎", numhl = "GitSignsChangeNr", linehl = "GitSignsChangeLn" },
+    delete = { hl = "GitSignsDelete", text = "_", numhl = "GitSignsDeleteNr", linehl = "GitSignsDeleteLn" },
+    topdelete = { hl = "GitSignsDelete", text = "-", numhl = "GitSignsDeleteNr", linehl = "GitSignsDeleteLn" },
+    changedelete = { hl = "GitSignsChange", text = "▎", numhl = "GitSignsChangeNr", linehl = "GitSignsChangeLn" },
   },
   signcolumn = true,  -- Toggle with `:Gitsigns toggle_signs`
   numhl      = false, -- Toggle with `:Gitsigns toggle_numhl`
@@ -213,7 +294,76 @@ require('gitsigns').setup {
 EOF
 
 
-" COC-NVIM
+" TOGGLETERM
+lua << EOF
+require("toggleterm").setup({
+	size = 20,
+	open_mapping = [[<c-\>]],
+	shade_filetypes = {},
+	direction = "float",
+	shell = vim.o.shell,
+	float_opts = {
+		border = "curved",
+		winblend = 0,
+		highlights = {
+			border = "Rounded",
+			background = "Normal",
+		},
+	},
+})
+
+function _G.set_terminal_keymaps()
+  local opts = {noremap = true}
+  vim.api.nvim_buf_set_keymap(0, 't', '<esc>', [[<C-\><C-n>]], opts)
+  vim.api.nvim_buf_set_keymap(0, 't', 'jk', [[<C-\><C-n>]], opts)
+  vim.api.nvim_buf_set_keymap(0, 't', '<C-h>', [[<C-\><C-n><C-W>h]], opts)
+  vim.api.nvim_buf_set_keymap(0, 't', '<C-j>', [[<C-\><C-n><C-W>j]], opts)
+  vim.api.nvim_buf_set_keymap(0, 't', '<C-k>', [[<C-\><C-n><C-W>k]], opts)
+  vim.api.nvim_buf_set_keymap(0, 't', '<C-l>', [[<C-\><C-n><C-W>l]], opts)
+end
+
+vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
+
+local Terminal = require("toggleterm.terminal").Terminal
+local lazygit = Terminal:new({ cmd = "lazygit", hidden = true })
+
+function _LAZYGIT_TOGGLE()
+	lazygit:toggle()
+end
+
+local node = Terminal:new({ cmd = "node", hidden = true })
+
+function _NODE_TOGGLE()
+	node:toggle()
+end
+
+local ncdu = Terminal:new({ cmd = "ncdu", hidden = true })
+
+function _NCDU_TOGGLE()
+	ncdu:toggle()
+end
+
+local htop = Terminal:new({ cmd = "htop", hidden = true })
+
+function _HTOP_TOGGLE()
+	htop:toggle()
+end
+
+local python = Terminal:new({ cmd = "ipython", hidden = true })
+
+function _PYTHON_TOGGLE()
+	python:toggle()
+end
+EOF
+
+" VISTA.VIM
+let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
+let g:vista_default_executive = 'coc'
+
+" VIMSPECTOR
+let g:vimspector_enable_mappings = 'HUMAN'
+
+" COC.NVIM
 " extensions
 let g:coc_global_extensions = [
             \"coc-pyright", 
@@ -221,15 +371,8 @@ let g:coc_global_extensions = [
             \"coc-vimlsp", 
             \"coc-html", 
             \"coc-java", 
-            \"coc-css"] 
-" Set internal encoding of vim, not needed on neovim, since coc.nvim using some
-" unicode characters in the file autoload/float.vim
-set encoding=utf-8
-" TextEdit might fail if hidden is not set.
-set hidden
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=100
+            \"coc-css"
+            \] 
 " Use tab for trigger completion with characters ahead and navigate.
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
@@ -240,19 +383,16 @@ function! s:check_back_space() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+" Make <CR> auto-select the first completion item and notify coc.nvim to
+" format on enter, <cr> could be remapped by other vim plugin
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-" floaterm
-nnoremap <silent> <C-\> :FloatermNew<CR>
-nnoremap <leader>t :FloatermNew! 
-let g:floaterm_width=0.9
-let g:floaterm_height=0.9
-" ==============================================
-
-
-" OTHERS
-" color scheme
+" COLORSCHEME
 colorscheme nightfox
 let g:airline_theme="distinguished"
-" fzf
+
+" FZF
 set rtp+=~/.fzf
-nnoremap <leader>F :FZF<CR>
+
+" ==============================================
