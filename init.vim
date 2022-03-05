@@ -25,8 +25,13 @@
 syntax on
 set number
 set relativenumber                  " relative number
-set tabstop=4
-set shiftwidth=4
+if &filetype ==#'html' || &filetype ==# 'css' || &filetype ==#'js' || &filetype ==#'scss'
+    setlocal tabstop=2
+    setlocal shiftwidth=2
+else
+    set tabstop=4
+    set shiftwidth=4
+endif
 set expandtab                       " use space as tabs
 set ignorecase                      " ignore case search
 let g:mapleader=" "                 " change the leader key
@@ -140,6 +145,14 @@ Plug 'liuchengxu/vista.vim'                                 " overlook
 Plug 'junegunn/fzf.vim'                                     " fuzzy file finder
 Plug 'akinsho/toggleterm.nvim'                              " integrated terminal
 Plug 'puremourning/vimspector'                              " debugger
+
+" LANGUAGE SUPPORT
+" .md
+Plug 'ferrine/md-img-paste.vim'
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
+Plug 'godlygeek/tabular'
+Plug 'preservim/vim-markdown'
+
 call plug#end()
 
 " ==============================================
@@ -258,38 +271,6 @@ require('gitsigns').setup {
     topdelete = { hl = "GitSignsDelete", text = "-", numhl = "GitSignsDeleteNr", linehl = "GitSignsDeleteLn" },
     changedelete = { hl = "GitSignsChange", text = "▎", numhl = "GitSignsChangeNr", linehl = "GitSignsChangeLn" },
   },
-  signcolumn = true,  -- Toggle with `:Gitsigns toggle_signs`
-  numhl      = false, -- Toggle with `:Gitsigns toggle_numhl`
-  linehl     = false, -- Toggle with `:Gitsigns toggle_linehl`
-  word_diff  = false, -- Toggle with `:Gitsigns toggle_word_diff`
-  watch_gitdir = {
-    interval = 1000,
-    follow_files = true
-  },
-  attach_to_untracked = true,
-  current_line_blame = false, -- Toggle with `:Gitsigns toggle_current_line_blame`
-  current_line_blame_opts = {
-    virt_text = true,
-    virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
-    delay = 1000,
-    ignore_whitespace = false,
-  },
-  current_line_blame_formatter = '<author>, <author_time:%Y-%m-%d> - <summary>',
-  sign_priority = 6,
-  update_debounce = 100,
-  status_formatter = nil, -- Use default
-  max_file_length = 40000,
-  preview_config = {
-    -- Options passed to nvim_open_win
-    border = 'single',
-    style = 'minimal',
-    relative = 'cursor',
-    row = 0,
-    col = 1
-  },
-  yadm = {
-    enable = false
-  },
 }
 EOF
 
@@ -360,6 +341,14 @@ EOF
 let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
 let g:vista_default_executive = 'coc'
 
+" MD-IMG-PASTE.VIM
+"设置默认储存文件夹。这里表示储存在当前文档所在文件夹下的'pic'文件夹下，相当于 ./pic/
+let g:mdip_imgdir = 'pic' 
+"设置默认图片名称。当图片名称没有给出时，使用默认图片名称
+let g:mdip_imgname = 'image'
+"设置快捷键，个人喜欢 Ctrl+p 的方式，比较直观
+autocmd FileType markdown nnoremap <silent> <leader>P :call mdip#MarkdownClipboardImage()<CR>
+
 " VIMSPECTOR
 let g:vimspector_enable_mappings = 'HUMAN'
 
@@ -371,7 +360,8 @@ let g:coc_global_extensions = [
             \"coc-vimlsp", 
             \"coc-html", 
             \"coc-java", 
-            \"coc-css"
+            \"coc-css",
+            \"coc-snippets"
             \] 
 " Use tab for trigger completion with characters ahead and navigate.
 inoremap <silent><expr> <TAB>
@@ -388,11 +378,27 @@ endfunction
 inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
+"COC-SNIPPET
+" Use <C-l> for trigger snippet expand.
+imap <C-l> <Plug>(coc-snippets-expand)
+
+" Use <C-j> for select text for visual placeholder of snippet.
+vmap <C-j> <Plug>(coc-snippets-select)
+
+" Use <C-j> for jump to next placeholder, it's default of coc.nvim
+let g:coc_snippet_next = '<c-j>'
+
+" Use <C-k> for jump to previous placeholder, it's default of coc.nvim
+let g:coc_snippet_prev = '<c-k>'
+
+" Use <C-j> for both expand and jump (make expand higher priority.)
+imap <C-j> <Plug>(coc-snippets-expand-jump)
+
+" Use <leader>x for convert visual selected code to snippet
+xmap <leader>x  <Plug>(coc-convert-snippet)
+
 " COLORSCHEME
 colorscheme nightfox
 let g:airline_theme="distinguished"
-
-" FZF
-set rtp+=~/.fzf
 
 " ==============================================
