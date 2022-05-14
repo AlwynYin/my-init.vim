@@ -25,13 +25,8 @@
 syntax on
 set number
 set relativenumber                  " relative number
-if &filetype ==#'html' || &filetype ==# 'css' || &filetype ==#'js' || &filetype ==#'scss'
-    setlocal tabstop=2
-    setlocal shiftwidth=2
-else
-    set tabstop=4
-    set shiftwidth=4
-endif
+set tabstop=4
+set shiftwidth=4
 set expandtab                       " use space as tabs
 set ignorecase                      " ignore case search
 let g:mapleader=" "                 " change the leader key
@@ -86,8 +81,8 @@ nnoremap <silent> <leader>s :noh<CR>
 
 " BUFFERLINE
 " move over buffers
-nnoremap <silent> ]b :bnext<CR>
-nnoremap <silent> [b :bNext<CR>
+nnoremap <silent> L :bnext<CR>
+nnoremap <silent> H :bNext<CR>
 " save and force quit
 nnoremap <silent> <leader>S :w<CR>:Bdelete<CR>
 nnoremap <silent> <leader>K :Bdelete!<CR>
@@ -142,9 +137,10 @@ Plug 'EdenEast/nightfox.nvim'
 " IDE FEATURES
 Plug 'neoclide/coc.nvim', { 'branch': 'master', 'do': 'yarn install --frozen-lockfile' }
 Plug 'liuchengxu/vista.vim'                                 " overlook
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'                                     " fuzzy file finder
 Plug 'akinsho/toggleterm.nvim'                              " integrated terminal
-Plug 'puremourning/vimspector'                              " debugger
+" Plug 'puremourning/vimspector'                              " debugger
 
 " LANGUAGE SUPPORT
 " .md
@@ -187,7 +183,13 @@ END
 
 
 " NVIM-TREE
-lua require'nvim-tree'.setup()
+lua << EOF
+require'nvim-tree'.setup{
+view={
+width=23
+}
+}
+EOF
 nnoremap <silent> <leader>e :NvimTreeToggle<CR>
 let g:nvim_tree_indent_markers = 1 "0 by default, this option shows indent markers when folders are open
 let g:nvim_tree_git_hl = 1 "0 by default, will enable file highlight for git attributes (can be used without the icons).
